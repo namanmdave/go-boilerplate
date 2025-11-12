@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: go-boilerplate-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-boilerplate}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password123}
+      POSTGRES_DB: ${POSTGRES_DB:-boilerplate_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./store/schema/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-boilerplate}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - boilerplate_network
+
+  # Redis Service
+  redis:
+    image: redis:7-alpine
+    container_name: go-boilerplate-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - boilerplate_network
+
+  # Go HTTP Server
+  http-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-boilerplate-http-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Database Configuration
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER:-boilerplate}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-password123}
+      DB_NAME: ${POSTGRES_DB:-boilerplate_db}
+      # Redis Configuration
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Application Configuration
+      ENV: ${ENV:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    networks:
+      - boilerplate_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  boilerplate_network:
+    driver: bridge

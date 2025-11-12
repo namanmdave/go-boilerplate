@@ -1,0 +1,12 @@
+version: "2"
+
+sql:
+  - engine: "postgresql"
+    queries: "./store/queries"
+    schema: "./store/schema"
+    gen:
+      go:
+        out: "./store/sqlc"
+        package: "db"
+        emit_interface: true
+        emit_json_tags: true
