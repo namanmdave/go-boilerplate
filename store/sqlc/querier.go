@@ -9,10 +9,17 @@ import (
 )
 
 type Querier interface {
-	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	AddUserToGroup(ctx context.Context, arg AddUserToGroupParams) (AddUserToGroupRow, error)
+	CreateGroup(ctx context.Context, arg CreateGroupParams) (Group, error)
+	CreateGroupMessage(ctx context.Context, arg CreateGroupMessageParams) (GroupMessage, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error)
 	DeleteUser(ctx context.Context, id int32) error
-	GetUser(ctx context.Context, id int32) (User, error)
-	ListUsers(ctx context.Context) ([]User, error)
+	GetGroup(ctx context.Context, groupID string) (Group, error)
+	GetGroupMessagesByGroupID(ctx context.Context, arg GetGroupMessagesByGroupIDParams) ([]GroupMessage, error)
+	GetUser(ctx context.Context, id int32) (GetUserRow, error)
+	GetUserIDInGroup(ctx context.Context, arg GetUserIDInGroupParams) (string, error)
+	ListUsers(ctx context.Context) ([]ListUsersRow, error)
+	RemoveUserFromGroup(ctx context.Context, arg RemoveUserFromGroupParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 }
 

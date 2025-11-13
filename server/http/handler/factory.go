@@ -17,6 +17,8 @@ type HandlerFactory struct {
 	// Cache handler instances to reuse them
 	userHandler    *UserHandler
 	productHandler *ProductHandler
+	groupHandler   *GroupHandler
+	messageHandler *MessageHandler
 }
 
 // NewHandlerFactory creates a new handler factory with shared dependencies
@@ -55,4 +57,28 @@ func (hf *HandlerFactory) GetProductHandler() *ProductHandler {
 		hf.serviceFactory.GetUserService(), // Pass UserService as a dependency
 	)
 	return hf.productHandler
+}
+
+func (hf *HandlerFactory) GetGroupHandler() *GroupHandler {
+	if hf.groupHandler != nil {
+		return hf.groupHandler
+	}
+
+	hf.groupHandler = NewGroupHandler(
+		hf.baseHandler,
+		hf.serviceFactory.GetGroupService(),
+	)
+	return hf.groupHandler
+}
+
+func (hf *HandlerFactory) GetMessageHandler() *MessageHandler {
+	if hf.messageHandler != nil {
+		return hf.messageHandler
+	}
+
+	hf.messageHandler = NewMessageHandler(
+		hf.baseHandler,
+		hf.serviceFactory.GetMessageService(),
+	)
+	return hf.messageHandler
 }
