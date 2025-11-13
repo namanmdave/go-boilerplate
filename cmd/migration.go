@@ -2,11 +2,14 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
+
 	"go-boilerplate/config"
+	"go-boilerplate/store"
+	"go-boilerplate/store/schema"
 
 	"github.com/spf13/cobra"
 )
-
 
 // migrationCmd represents the migration command
 var migrationCmd = &cobra.Command{
@@ -25,9 +28,14 @@ var migrationCmd = &cobra.Command{
 		action := args[0]
 		fmt.Printf("Running migration: %s\n", action)
 
-		// TODO: Implement migration logic here
-		// This should integrate with your database migration tool
-		// Examples: golang-migrate, sql-migrate, etc.
+		switch action {
+		case "up":
+			if err := migrateUp(); err != nil {
+				return err
+			}
+		default:
+			fmt.Printf("Unknown migration action: %s\n", action)
+		}
 
 		return nil
 	},
@@ -35,4 +43,28 @@ var migrationCmd = &cobra.Command{
 
 func init() {
 	AddCommand(migrationCmd)
+}
+
+// migrateUp executes statements from the embedded schema.Schema string.
+func migrateUp() error {
+	raw := schema.Schema
+	parts := strings.Split(raw, ";")
+
+	db, _ := store.InitPostgres(config.GetDBConfig())
+	if db == nil {
+		return fmt.Errorf("config.DB is nil; please expose *sql.DB in config package as DB (set by config.Init)")
+	}
+
+	for _, p := range parts {
+		stmt := strings.TrimSpace(p)
+		if stmt == "" {
+			continue
+		}
+		if _, err := db.Exec(stmt); err != nil {
+			return fmt.Errorf("exec statement failed: %w\nstatement: %s", err, stmt)
+		}
+	}
+
+	fmt.Println("Migrations applied from embedded schema")
+	return nil
 }

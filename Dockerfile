@@ -26,7 +26,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
 FROM alpine:latest
 
 # Install runtime dependencies
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk --no-cache add ca-certificates tzdata curl
 
 # Create a non-root user
 RUN addgroup -g 1000 appuser && \
@@ -49,6 +49,6 @@ EXPOSE 8080
 
 ENTRYPOINT ["/app/app", "start-http-server"]
 
-# Health check
+# Health check - call the application's HTTP health endpoint
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD /bin/sh -c "test -f /app/server || exit 1"
+    CMD /bin/sh -c "curl -fsS http://localhost:8080/api/health || exit 1"

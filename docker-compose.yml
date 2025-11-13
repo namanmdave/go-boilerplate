@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Service
   postgres:
@@ -15,7 +13,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./store/schema/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-boilerplate}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-boilerplate} -d ${POSTGRES_DB:-boilerplate_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -49,6 +47,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    # run migration before launching the server in this container
+    # use a single entrypoint that runs the migration then execs the server
+    entrypoint: ["sh", "-c", "/app/app migration up && exec /app/app start-http-server"]
     environment:
       # Database Configuration
       DB_HOST: postgres

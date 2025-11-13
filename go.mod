@@ -5,6 +5,7 @@ go 1.25.4
 require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/validator/v10 v10.28.0
+	github.com/gorilla/websocket v1.5.3
 	github.com/lib/pq v1.10.9
 	github.com/redis/go-redis/v9 v9.16.0
 	github.com/spf13/cobra v1.10.1
