@@ -23,13 +23,13 @@ func NewUserService(store *store.Store, logger *zap.SugaredLogger, validator *va
 	}
 }
 
-func (us *UserService) CreateUser(ctx context.Context, user *dto.CreateUserRequest) (db.User, error) {
+func (us *UserService) CreateUser(ctx context.Context, user *dto.CreateUserRequest) (db.CreateUserRow, error) {
 	dbUser, err := us.Store.Querier.CreateUser(ctx, db.CreateUserParams{
 		Email: user.Email,
 		Name:  user.Username,
 	})
 	if err != nil {
-		return db.User{}, fmt.Errorf("failed to create user: %w", err)
+		return db.CreateUserRow{}, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	return dbUser, nil

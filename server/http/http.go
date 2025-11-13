@@ -68,7 +68,7 @@ func (s *HTTPServer) Start() error {
 func (s *HTTPServer) registerRoutes() {
 	s.router.Use(gin.Recovery())
 	s.router.Use(RequestLoggingMiddleware())
-	s.router.Use(CORSMiddleware())
+	// s.router.Use(CORSMiddleware())
 
 	s.router.OPTIONS("/*any", handler.OptionsHandler)
 
@@ -88,5 +88,16 @@ func (s *HTTPServer) registerRoutes() {
 			users.POST("/", userHandler.CreateUser)
 		}
 
+		groupHandler := s.handlerFactory.GetGroupHandler()
+		groups := protected.Group("/groups")
+		{
+			groups.GET("/:group_id", groupHandler.UpgradeHandler)
+		}
+
+		messageHandler := s.handlerFactory.GetMessageHandler()
+		messages := protected.Group("/messages")
+		{
+			messages.GET("/:group_id", messageHandler.FetchGroupMessages)
+		}
 	}
 }

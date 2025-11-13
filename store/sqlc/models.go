@@ -8,10 +8,36 @@ import (
 	"database/sql"
 )
 
+type Group struct {
+	ID          int32          `json:"id"`
+	GroupID     string         `json:"group_id"`
+	Name        string         `json:"name"`
+	Description sql.NullString `json:"description"`
+	CreatedAt   sql.NullTime   `json:"created_at"`
+	UpdatedAt   sql.NullTime   `json:"updated_at"`
+}
+
+type GroupMessage struct {
+	ID        int32          `json:"id"`
+	GroupID   string         `json:"group_id"`
+	SenderID  sql.NullString `json:"sender_id"`
+	Type      string         `json:"type"`
+	Message   string         `json:"message"`
+	CreatedAt sql.NullTime   `json:"created_at"`
+}
+
 type User struct {
 	ID        int32        `json:"id"`
+	ChatID    string       `json:"chat_id"`
 	Name      string       `json:"name"`
 	Email     string       `json:"email"`
 	CreatedAt sql.NullTime `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
+}
+
+type UserGroup struct {
+	UserID    string       `json:"user_id"`
+	GroupID   string       `json:"group_id"`
+	AddedAt   sql.NullTime `json:"added_at"`
+	RemovedAt sql.NullTime `json:"removed_at"`
 }

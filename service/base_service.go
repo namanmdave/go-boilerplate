@@ -22,3 +22,4 @@ func NewBaseService(store *store.Store, logger *zap.SugaredLogger, validator *va
 		Validator: validator,
 	}
 }
+

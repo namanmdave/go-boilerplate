@@ -16,6 +16,8 @@ type ServiceFactory struct {
 	// Cache service instances to reuse them
 	userService    *UserService
 	productService *ProductService
+	messageService *MessageService
+	groupService   *GroupService
 }
 
 // NewServiceFactory creates a new service factory with shared dependencies
@@ -52,4 +54,22 @@ func (sf *ServiceFactory) GetProductService() *ProductService {
 		sf.GetUserService(), // Pass other services here
 	)
 	return sf.productService
+}
+
+func (sf *ServiceFactory) GetMessageService() *MessageService {
+	if sf.messageService != nil {
+		return sf.messageService
+	}
+
+	sf.messageService = NewMessageService(sf.store, sf.logger, sf.validator)
+	return sf.messageService
+}
+
+func (sf *ServiceFactory) GetGroupService() *GroupService {
+	if sf.groupService != nil {
+		return sf.groupService
+	}
+
+	sf.groupService = NewGroupService(sf.store, sf.logger, sf.validator)
+	return sf.groupService
 }
